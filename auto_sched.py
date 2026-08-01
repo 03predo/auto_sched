@@ -4,6 +4,7 @@ import logging
 from team import Team
 
 logging.basicConfig(level=logging.DEBUG)
+logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
 LOG = logging.getLogger(__name__)
 
 if __name__ == "__main__":
