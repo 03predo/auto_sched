@@ -17,4 +17,4 @@ def get_team_health_sheet():
 
     sheet = client.open_by_url(SPREADSHEET_URL).sheet1
     LOG.debug(sheet.get_all_records())
-    return sheet
+    return sheet.get_all_records()

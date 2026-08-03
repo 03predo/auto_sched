@@ -8,16 +8,61 @@ from requests.auth import HTTPBasicAuth
 PCO_SECRETS = json.load(open('secrets/pco.json', 'rb'))
 LOG = logging.getLogger(__name__)
 
-def get_response(url: str) -> dict[str, Any]:
+def _fetch_page(url: str) -> dict[str, Any]:
     response = requests.get(
-        url, 
+        url,
         auth=HTTPBasicAuth(PCO_SECRETS['pco_app_id'], PCO_SECRETS['pco_secret']),
     )
-    
+
     if response.status_code != 200:
         raise RuntimeError(f"Error: {response.status_code} - {response.text}")
-        
+
     return response.json()
+
+def get_response(url: str) -> dict[str, Any]:
+    """Fetch a URL from the PCO API, following pagination if the response
+    is a list (i.e. `data` is a list rather than a single object).
+
+    PCO list endpoints default to 25 items per page and expose the next
+    page via `links.next`. Single-resource endpoints (e.g. a request for
+    one folder) return `data` as a dict and are not paginated, so they're
+    returned as-is.
+    """
+    first_page = _fetch_page(url)
+
+    if not isinstance(first_page.get('data'), list):
+        # Single-resource response; nothing to paginate.
+        return first_page
+
+    all_data: list[Any] = list(first_page['data'])
+    included_by_key: dict[tuple[str, str], Any] = {
+        (item['type'], item['id']): item for item in first_page.get('included', [])
+    }
+
+    next_url = first_page.get('links', {}).get('next')
+    page_count = 1
+    while next_url:
+        page_count += 1
+        LOG.debug(f"Fetching page {page_count} from {next_url}")
+        page = _fetch_page(next_url)
+
+        all_data.extend(page.get('data', []))
+        for item in page.get('included', []):
+            included_by_key[(item['type'], item['id'])] = item
+
+        next_url = page.get('links', {}).get('next')
+
+    result = dict(first_page)
+    result['data'] = all_data
+    if included_by_key:
+        result['included'] = list(included_by_key.values())
+    # A fully-paginated response has no more "next" page.
+    result['links'] = {k: v for k, v in first_page.get('links', {}).items() if k != 'next'}
+
+    if page_count > 1:
+        LOG.info(f"Paginated response: fetched {page_count} pages, {len(all_data)} total items.")
+
+    return result
 
 def get_folder_id(folder_name: str) -> str:
     url = f'https://api.planningcenteronline.com/services/v2/folders' 

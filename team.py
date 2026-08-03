@@ -59,7 +59,7 @@ class Team:
                         return name.strip().lower()
                     return f"{parts[0]} {parts[-1]}".lower()
 
-                member_entry = next((item for item in team_health_sheet.get_all_records() if first_last(str(item['Name'])) == first_last(member_data['name'])), None)
+                member_entry = next((item for item in team_health_sheet if (first_last(str(item['Name'])) == first_last(member_data['name'])) and (item['Position'] == position['name'])), None)
                 if member_entry:
                     skill_level = member_entry.get('Hands', 0)
                 else:

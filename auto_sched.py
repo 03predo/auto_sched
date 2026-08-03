@@ -15,4 +15,4 @@ if __name__ == "__main__":
 
     instrumentalists= Team(FOLDER_NAME, SERVICE_TYPE_NAME, TEAM_NAME, MONTH)
 
-    logging.info(f"Instrumentalists: {instrumentalists}")
+    # logging.info(f"Instrumentalists: {instrumentalists}")
