@@ -1,0 +1,65 @@
+[
+    {
+        "name": "Acoustic Guitar",
+        "num": 1,
+        "mandatory": false,
+        "is_addition": false,
+        "supports_addition": true 
+    },
+    {
+        "name": "Bass Guitar",
+        "num": 1,
+        "mandatory": true,
+        "is_addition": false,
+        "supports_addition": true 
+    },
+    {
+        "name": "Drums",
+        "num": 1,
+        "mandatory": true,
+        "is_addition": false,
+        "supports_addition": false 
+    },
+    {
+        "name": "Electric Guitar (Lead)",
+        "num": 1,
+        "mandatory": true,
+        "is_addition": false,
+        "supports_addition": true
+    },
+    {
+        "name": "Electric Guitar (Rhythm)",
+        "num": 1,
+        "mandatory": false,
+        "is_addition": false,
+        "supports_addition": true
+    },
+    {
+        "name": "Keyboard",
+        "num": 1,
+        "mandatory": true,
+        "is_addition": false,
+        "supports_addition": true
+    },
+    {
+        "name": "Music Director",
+        "num": 1,
+        "mandatory": true,
+        "is_addition": true,
+        "supports_addition": false
+    },
+    {
+        "name": "Support Director",
+        "num": 1,
+        "mandatory": false,
+        "is_addition": true,
+        "supports_addition": false
+    },
+    {
+        "name": "Synth Keyboard",
+        "num": 1,
+        "mandatory": false,
+        "is_addition": false,
+        "supports_addition": true
+    }
+]
