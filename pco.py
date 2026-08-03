@@ -110,9 +110,20 @@ def add_positions_to_team_members(team_id: str, team_members: dict[str, Any], te
             if team_members[person_id].get('positions') is None:
                 team_members[person_id]['positions'] = []
             
+            schedule_preference = assignment['attributes']['schedule_preference']
+            if schedule_preference == "Once a month":
+                schedule_preference = 1
+            elif schedule_preference == "Twice a month":
+                schedule_preference = 2
+            elif schedule_preference == "Three times a month":
+                schedule_preference = 3
+            elif schedule_preference == "As often as needed":
+                schedule_preference = 5
+            else:
+                raise RuntimeError(f"Unknown schedule preference '{schedule_preference}' for person '{team_members[person_id]['name']}' and position '{team_positions[position_id]['name']}'.")
             team_members[person_id]['positions'].append({
                 "name": team_positions[position_id]['name'],
-                "schedule_preference": assignment['attributes']['schedule_preference'],
+                "schedule_preference": schedule_preference,
             })
         else:
             raise RuntimeError(f"Person ID '{person_id}' not found in team members while processing position assignments.")

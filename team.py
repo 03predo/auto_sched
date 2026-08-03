@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from pco import get_team
+from sheets import get_team_health_sheet
 
 LOG = logging.getLogger(__name__)
 
@@ -44,17 +45,34 @@ class TeamMember:
 
 class Team:
     def __init__(self, folder_name: str, service_type_name: str, team_name: str, month: int):
+        team_health_sheet = get_team_health_sheet()
         team_members_json = get_team(folder_name, service_type_name, team_name, month)
 
+        logging.info(f"Formatting team members from json data")
+        logging.debug(f"Team members JSON data: {team_members_json}")
         self.team_members: list[TeamMember] = []
         for _, member_data in team_members_json.items():
+            for position in member_data.get('positions', []):
+                def first_last(name: str) -> str:
+                    parts = name.split()
+                    if len(parts) < 2:
+                        return name.strip().lower()
+                    return f"{parts[0]} {parts[-1]}".lower()
+
+                member_entry = next((item for item in team_health_sheet.get_all_records() if first_last(str(item['Name'])) == first_last(member_data['name'])), None)
+                if member_entry:
+                    skill_level = member_entry.get('Hands', 0)
+                else:
+                    logging.warning(f"Member '{member_data['name']}' with position '{position['name']}' not found in team health sheet. Defaulting skill level to 0.")
+                    skill_level = 0
+                position['skill_level'] = skill_level
             member = TeamMember(
                 name=member_data['name'],
                 positions=[
                     TeamPosition(
                         name=position['name'],
                         schedule_preference=position['schedule_preference'],
-                        skill_level=0  # Placeholder for skill level
+                        skill_level=position['skill_level']
                     ) for position in member_data.get('positions', [])
                 ],
                 blockouts=[
